@@ -35,6 +35,12 @@ In an era of deepfakes and misinformation, TruthTok provides:
 - **Real-Time**: Access breaking news as it happens
 
 
+## Architecture 🏗️
+
+[![TruthTok Architecture](https://link.excalidraw.com/readonly/PP4YtXlYNGSmus20AN2c?darkMode=true)](https://link.excalidraw.com/readonly/PP4YtXlYNGSmus20AN2c?darkMode=true)
+
+Click on the diagram to view it in full size.
+
 ## Quick Links 🔗
 
 - [Documentation](https://docs.truthtok.com)
