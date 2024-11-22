@@ -1,0 +1,31 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install curl for healthchecks
+RUN apk add --no-cache curl
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Create test script directly in the container
+RUN echo '#!/bin/sh' > /app/run-tests.sh && \
+    echo 'npx prisma migrate deploy' >> /app/run-tests.sh && \
+    echo 'npm run test' >> /app/run-tests.sh && \
+    chmod +x /app/run-tests.sh
+
+# Make sure the script exists and is executable
+RUN ls -la /app/run-tests.sh && cat /app/run-tests.sh
+
+# Use shell form to ensure proper script execution
+CMD sh /app/run-tests.sh

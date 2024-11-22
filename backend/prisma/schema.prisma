@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  videos    Video[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Video {
+  id          String    @id @default(uuid())
+  url         String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  location    Json      // { lat: number, lng: number }
+  timestamp   DateTime
+  status      String
+  description String?
+  clusterId   String?
+  cluster     Cluster?  @relation(fields: [clusterId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Cluster {
+  id             String   @id @default(uuid())
+  centerLocation Json     // { lat: number, lng: number }
+  radiusKm      Float
+  timeStart     DateTime
+  timeEnd       DateTime
+  story         String?
+  videos        Video[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+} 
