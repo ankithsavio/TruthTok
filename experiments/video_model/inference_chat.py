@@ -8,9 +8,9 @@ def inference():
     disable_torch_init()
 
     modal = 'video'
-    video_dir = 'video_model/data/videos/'
 
     video_dir = 'video_model/data/videos/sample_video.mp4'
+
     model_path = 'DAMO-NLP-SG/VideoLLaMA2.1-7B-16F'
 
     model, processor, tokenizer = model_init(model_path)
@@ -23,7 +23,7 @@ def inference():
 
             output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=True, modal=modal)
 
-            print(f'assistant: {output}')
+            print(f'\nassistant: {output}')
     except KeyboardInterrupt as e:
         print('\nEnd of Video Chat\n')
 

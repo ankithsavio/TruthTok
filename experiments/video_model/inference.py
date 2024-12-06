@@ -4,7 +4,7 @@ from videollama2 import model_init, mm_infer
 from videollama2.utils import disable_torch_init
 import os
 import json
-from backend.post_tweet import post
+from feed_backend.post_tweet import post
 
 def inference():
     disable_torch_init()

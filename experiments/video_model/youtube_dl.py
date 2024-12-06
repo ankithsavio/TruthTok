@@ -2,7 +2,7 @@ import os
 import re
 import json
 import yt_dlp
-
+import argparse
 
 def sanitize_filename(filename):
     """
@@ -117,7 +117,14 @@ def download_videos_from_search(search_query, max_duration=300, max_videos=10, o
         print(f"Metadata appended to {metadata_path}")
 
 if __name__ == "__main__":
-    search_query = "live news feed"
-    download_videos_from_search(search_query)
+    parser = argparse.ArgumentParser(description="Download YouTube videos based on a search query.")
+    parser.add_argument("search_query", type=str, help="The search query for the videos.")
+    parser.add_argument("--max_duration", type=int, default=300, help="Maximum video duration in seconds (default: 300).")
+    parser.add_argument("--max_videos", type=int, default=10, help="Maximum number of videos to download (default: 10).")
+    parser.add_argument("--output_dir", type=str, default="video_model/data", help="Directory to save videos and metadata (default: video_model/data).")
+
+    args = parser.parse_args()
+
+    download_videos_from_search(args.search_query, args.max_duration, args.max_videos, args.output_dir)
 
 

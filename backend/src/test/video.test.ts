@@ -1,11 +1,16 @@
 import request from 'supertest'
-import { setupTestServer } from './utils'
+import { createAuthenticatedRequest, setupTestServer } from './utils'
 import { prismaMock } from './setup'
 import type { Express } from 'express'
 
 describe('Video API', () => {
   let app: Express
-  let authenticatedRequest: ReturnType<typeof createAuthenticatedRequest>
+  let authenticatedRequest: {
+    get: (url: string) => request.Test;
+    post: (url: string) => request.Test;
+    put: (url: string) => request.Test;
+    delete: (url: string) => request.Test;
+  };
 
   beforeAll(async () => {
     app = await setupTestServer()
