@@ -48,4 +48,4 @@ coverage/
 
 
 # Avoid committing to submodule videollama2
-experiments/VideoLLaMA2/
+VideoLLaMA2/
