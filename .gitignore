@@ -44,3 +44,8 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+
+
+# Avoid committing to submodule videollama2
+experiments/VideoLLaMA2/
