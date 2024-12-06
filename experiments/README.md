@@ -80,3 +80,9 @@ The `video_model` directory contains Python scripts for various video processing
 
 -   Follow intructions to download the VideoLLaMA2 from the local directory.
 -   The `inference_chat.py` does not depend on the web application and can be run directly.
+
+
+## WIP
+
+-   Add Audio-To-Text : Whisper.
+
