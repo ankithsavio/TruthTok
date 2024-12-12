@@ -1,78 +1,60 @@
 import request from 'supertest'
-import { setupTestServer } from './utils'
-import { prismaMock } from './setup'
-import type { Express } from 'express'
+import app from '../app'
+import { VideoStatus } from '@prisma/client'
+import path from 'path'
+import { dbService } from '../services/db'
 
 describe('Video API', () => {
-  let app: Express
-  let authenticatedRequest: ReturnType<typeof createAuthenticatedRequest>
-
-  beforeAll(async () => {
-    app = await setupTestServer()
-    authenticatedRequest = await createAuthenticatedRequest(app)
-  })
-
   describe('POST /api/videos/upload', () => {
-    it('should return upload URL when valid location provided', async () => {
-      const response = await authenticatedRequest
+    it('should upload a video successfully', async () => {
+      const response = await request(app)
         .post('/api/videos/upload')
-        .send({
-          location: {
-            lat: 51.5074,
-            lng: -0.1278
-          }
-        })
+        .attach('video', path.join(__dirname, '__fixtures__/test-video.mp4'))
+        .field('location', JSON.stringify({
+          latitude: 40.7128,
+          longitude: -74.0060
+        }))
 
-      expect(response.status).toBe(200)
-      expect(response.body).toHaveProperty('uploadUrl')
+      expect(response.status).toBe(201)
       expect(response.body).toHaveProperty('videoId')
     })
 
-    it('should reject invalid location data', async () => {
-      const response = await authenticatedRequest
+    it('should reject invalid video formats', async () => {
+      const response = await request(app)
         .post('/api/videos/upload')
-        .send({
-          location: {
-            lat: 'invalid',
-            lng: -0.1278
-          }
-        })
+        .attach('video', path.join(__dirname, '__fixtures__/invalid.txt'))
 
       expect(response.status).toBe(400)
+      expect(response.body).toHaveProperty('error')
     })
   })
 
   describe('GET /api/videos/:id/status', () => {
-    it('should return video status', async () => {
-      const videoId = 'test-video-id'
-      
-      prismaMock.video.findUnique.mockResolvedValue({
-        id: videoId,
-        status: 'processing',
-        userId: 'test-user-id',
-        url: 'test-url',
-        location: { lat: 0, lng: 0 },
-        timestamp: new Date(),
-        description: null,
-        clusterId: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
+    it('should get video processing status', async () => {
+      // Create a test video first
+      const video = await dbService.createVideo(
+        'test-user',
+        'http://example.com/video.mp4',
+        {
+          latitude: 40.7128,
+          longitude: -74.0060
+        }
+      )
 
-      const response = await authenticatedRequest
-        .get(`/api/videos/${videoId}/status`)
+      const response = await request(app)
+        .get(`/api/videos/${video.id}/status`)
 
       expect(response.status).toBe(200)
-      expect(response.body).toHaveProperty('status', 'processing')
+      expect(response.body).toHaveProperty('status')
+      expect(response.body.status).toBe(VideoStatus.PENDING)
     })
 
     it('should return 404 for non-existent video', async () => {
-      prismaMock.video.findUnique.mockResolvedValue(null)
-
-      const response = await authenticatedRequest
+      const response = await request(app)
         .get('/api/videos/non-existent-id/status')
 
       expect(response.status).toBe(404)
+      expect(response.body).toHaveProperty('error')
     })
   })
-}) 
+})

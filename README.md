@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/TruthTok Logo Design.webp" alt="TruthTok Logo" width="200">
+</p>
+
 # TruthTok Platform 📱
 
 [![GitHub license](https://img.shields.io/github/license/your-username/truthtok-platform)](https://github.com/your-username/truthtok-platform/blob/main/LICENSE)
