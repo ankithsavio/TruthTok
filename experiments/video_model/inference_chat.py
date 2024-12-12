@@ -1,5 +1,3 @@
-import sys
-sys.path.append('./')
 from videollama2 import model_init, mm_infer
 from videollama2.utils import disable_torch_init
 import os
