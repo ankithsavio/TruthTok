@@ -1,33 +1,29 @@
-import subprocess
-import io
+import cv2
 
-def segment_video_generator(input_file, segment_time=60, overlap_time=10):
-    # get video duration
-    duration_command = [
-        "ffprobe",
-        "-v", "error",
-        "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1",
-        input_file
-    ]
-    result = subprocess.run(duration_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    duration = float(result.stdout.strip())
 
-    current_start = 0
+def segment_video_generator(input_file, segment_time=60):
+    """
+    Generator that yields segmented chunks of a video.
+    """
+    cap = cv2.VideoCapture(input_file)
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    total_duration = frame_count // fps
 
-    while current_start < duration:
-        command = [
-            "ffmpeg",
-            "-i", input_file,
-            "-ss", str(current_start),
-            "-t", str(segment_time),
-            "-c", "copy",
-            "-f", "matroska",
-            "pipe:1"
-        ]
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        yield io.BytesIO(process.stdout.read())
-        process.stdout.close()
-        process.wait()
-        current_start += segment_time - overlap_time
+    chunk_frames = []
+    start_time = 0
 
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        current_time = len(chunk_frames) / fps + start_time
+        chunk_frames.append(frame)
+
+        if current_time >= start_time + segment_time or not ret:
+            yield chunk_frames
+            chunk_frames = []
+            start_time += segment_time
+
+    cap.release()
