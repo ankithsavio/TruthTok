@@ -47,10 +47,10 @@ Click on the diagram to view it in full size.
 
 ## Quick Links 🔗
 
-- [Documentation](https://docs.truthtok.com)
-- [API Reference](https://api.truthtok.com)
+<!-- - [Documentation](https://docs.truthtok.com) -->
+<!-- - [API Reference](https://api.truthtok.com) -->
 - [Contributing Guidelines](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
+<!-- - [Code of Conduct](CODE_OF_CONDUCT.md) -->
 
 ## Stats 📊
 
@@ -64,8 +64,8 @@ Click on the diagram to view it in full size.
 If you believe in bringing truth back to news:
 
 - ⭐ Star this repository
-- 🐛 [Report bugs](https://github.com/your-username/truthtok-platform/issues)
-- 💡 [Suggest features](https://github.com/your-username/truthtok-platform/issues)
+- 🐛 [Report bugs](https://github.com/NethermindEth/TruthTok/issues)
+- 💡 [Suggest features](https://github.com/NethermindEth/TruthTok/issues)
 - 🔄 [Contribute](CONTRIBUTING.md)
 
 ## License 📄
@@ -75,7 +75,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  <a href="https://t.me/truthtok_announcements">
+  <a href="https://t.me/truth_tok">
     <img src="https://img.shields.io/badge/Join-Telegram-blue.svg?style=for-the-badge&logo=telegram" alt="Join Telegram">
   </a>
 </p> 
