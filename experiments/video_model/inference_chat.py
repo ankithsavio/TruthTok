@@ -7,7 +7,7 @@ def inference():
 
     modal = 'video'
 
-    video_dir = 'data/videos/sample_video.mp4'
+    video_dir = 'experiments/data/videos/sample_video.mp4'
 
     model_path = 'DAMO-NLP-SG/VideoLLaMA2.1-7B-16F'
 

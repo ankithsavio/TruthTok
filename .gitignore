@@ -54,3 +54,4 @@ VideoLLaMA2/
 videos/
 audios/
 metadata/
+*.ipynb

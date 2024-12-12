@@ -72,9 +72,6 @@ The `video_model` directory contains Python scripts for various video processing
          cd video_model
         python inference_chat.py
         ```
--   **Data**:
-    -   Add mp4 videos in data/videos to run inference on.
-    -   Additionally add metadata of the videos in video.json.
 
 ## Additional Notes
 
@@ -85,4 +82,5 @@ The `video_model` directory contains Python scripts for various video processing
 ## WIP
 
 -   Add Audio-To-Text : Whisper.
+-   Add Ollama : LLaMA 3.3
 

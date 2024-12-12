@@ -7,15 +7,16 @@ import os
 import json
 from feed_backend.post_tweet import post
 
+
 def inference():
     disable_torch_init()
 
     modal = "video"
-    video_dir = "./data/videos/segments/"
+    video_dir = "experiments/data/videos/segments/"
     instruct = "Describe the video in detail"
 
-    metadata_path = 'video_model/data/metadata/video.json'
-    model_path = 'DAMO-NLP-SG/VideoLLaMA2.1-7B-16F'
+    metadata_path = "experiments/data/metadata/video.json"
+    model_path = "DAMO-NLP-SG/VideoLLaMA2.1-7B-16F"
 
     model, processor, tokenizer = model_init(model_path)
     for file in os.listdir(video_dir):
@@ -40,9 +41,10 @@ def inference():
                     title = json_object.get("original_title")
                     url = json_object.get("url")
 
-        content = f'Video Title : {title}\n Description of the video : {description}\n Link :{url}'
+        content = f"Video Title : {title}\n Description of the video : {description}\n Link :{url}"
 
-        post(content= content, user= 'johndoe')
+        post(content=content, user="johndoe")
+
 
 if __name__ == "__main__":
     inference()

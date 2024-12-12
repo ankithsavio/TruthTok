@@ -1,6 +1,7 @@
 import subprocess
 import os
 
+
 def segment_video(input_file, output_pattern, segment_time=60, overlap_time=10):
     base_dir = os.path.dirname(output_pattern)
     if not os.path.exists(base_dir):
@@ -45,6 +46,6 @@ def segment_video(input_file, output_pattern, segment_time=60, overlap_time=10):
 
 
 if __name__ == "__main__":
-    input_video = "./data/videos/sample_video.mp4"
-    output_directory = "./data/videos/segments/"
+    input_video = "experiments/data/videos/sample_video.mp4"
+    output_directory = "experiments/data/videos/segments/"
     segment_video(input_video, output_directory)

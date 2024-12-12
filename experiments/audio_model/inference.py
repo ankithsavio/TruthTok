@@ -8,7 +8,7 @@ def inference():
     model = WhisperModel(model_size, device="cuda", compute_type="float16")
 
     segments, info = model.transcribe(
-        "/home/ubuntu/project_truth/TruthTok/experiments/video_model/data/audios/sample_audio.mp3",
+        "./data/audios/sample_audio.mp3",
         beam_size=5,
     )
 
