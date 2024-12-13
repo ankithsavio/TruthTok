@@ -176,7 +176,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="./data",
+        default="experiments/data",
         help="Directory to save videos and metadata (default: ./data).",
     )
 

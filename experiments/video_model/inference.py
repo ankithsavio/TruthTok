@@ -1,6 +1,6 @@
 from videollama2 import model_init, mm_infer
 from videollama2.utils import disable_torch_init
-from segment_generator import segment_video_generator
+from .segment_generator import segment_video_generator
 import re
 
 

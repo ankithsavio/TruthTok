@@ -23,7 +23,7 @@ class LlamaModel:
         1. **Video-to-Text Model Output**: A description of the visual content in all the segment.  
         2. **Audio-to-Text Model Output**: A transcription of the audio content in all the segment.  
 
-        Your task is to combine these outputs into a single, cohesive, and accurate description of the segment. Use the audio transcription as the primary anchor for factual accuracy, and only include visual details from the video-to-text model if they are consistent with or enhance the audio content.
+        Your task is to combine these outputs into a single, cohesive, and accurate description of the segment. Use the audio transcription as the primary anchor for factual accuracy, and include visual details from the video-to-text model if they are consistent with or enhance the audio content.
 
         Here is the input for the current segment:  
 
@@ -33,10 +33,10 @@ class LlamaModel:
         **Audio-to-Text Model Output**:  
         `{audio_content}`  
 
-        Based on the provided information, generate a single, accurate, and clear description of the video. Ensure the description is detailed, concise, avoids any speculative content, and maintains factual accuracy.
+        Based on the provided information, generate a single, accurate, and clear description of the video. Ensure the description is detailed, avoids any speculative content, and maintains factual accuracy.
         """
 
-    def summmarize_video(self, video_content, audio_content):
+    def summarize_video(self, video_content, audio_content):
         response = self.client.chat(
             model=self.model,
             messages=[

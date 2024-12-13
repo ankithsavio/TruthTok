@@ -36,8 +36,12 @@ def segment_video(input_file, output_pattern, segment_time=60, overlap_time=10):
             str(current_start),
             "-t",
             str(segment_time),
-            "-c",
-            "copy",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-crf",
+            "23",
             output_file,
         ]
         subprocess.run(command, check=True)
