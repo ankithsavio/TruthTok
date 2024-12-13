@@ -45,42 +45,45 @@
     python webapp.py
     ```
 
-
 ### 3. Video Model (video\_model)
-
-The `video_model` directory contains Python scripts for various video processing tasks.
 
 -   **YouTube Video Downloader**
 
     - Use `youtube_dl.py` to download YouTube videos based on a search query, filters them by duration, and saves them along with their metadata.
 
         ```bash
-        cd video_model
-        python youtube_dl.py <search_query> [--max_duration] [--max_videos] [--output_dir]
+        python experiments/video_model/youtube_dl.py <search_query> [--max_duration] [--max_videos] [--output_dir]
         ```
 
 -   **Running Inference:**
 
-    -   Use `inference.py` to run inference on a video file stored in `data/videos/sample_video.mp4`and create a post in the web application.
+    -   Use `inference.py` to run inference on a video file stored in `data/videos/sample_video.mp4` using the `CustomVideoLLaMA2` class, which can describe the video based on its visual content.
         ```bash
-        cd video_model
-        python inference.py
+        python experiments/video_model/inference.py
         ```
 
-    -   Use `inference_chat.py` for inference on a single video with an interactive chat feature.
+### 3. Audio Model (audio\_model)
+
+-   **Running Inference:**
+
+    -   Use `inference.py` to run inference on a video file stored in `data/videos/sample_video.mp4` using the `CustomWhisper` class, which can transcribe the video based on its audio content.
         ```bash
-         cd video_model
-        python inference_chat.py
+        python experiments/audio_model/inference.py
         ```
+
+### 3. Language Model (language\_model)
+
+-   **Running Inference:**
+
+    -   `inference.py` implements the `LlamaModel` class, which can summarize the content from both video_model and the audio_model.
+
+    - The `experiments/main.py` script combines all the models to summarize `data/videos/sample_video.mp4`.
 
 ## Additional Notes
 
--   Follow intructions to download the VideoLLaMA2 from the local directory.
+-   Follow instructions to download the VideoLLaMA2 from the local directory.
 -   The `inference_chat.py` does not depend on the web application and can be run directly.
-
 
 ## WIP
 
--   Add Audio-To-Text : Whisper.
--   Add Ollama : LLaMA 3.3
-
+-   Robust experimentation
