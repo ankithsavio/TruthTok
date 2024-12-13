@@ -1,50 +1,67 @@
-import sys
-
-sys.path.append("./")
 from videollama2 import model_init, mm_infer
 from videollama2.utils import disable_torch_init
-import os
-import json
-from feed_backend.post_tweet import post
+from segment_generator import segment_video_generator
+import re
 
 
-def inference():
-    disable_torch_init()
+class CustomVideoLLaMA2:
 
-    modal = "video"
-    video_dir = "experiments/data/videos/segments/"
-    instruct = "Describe the video in detail"
+    def __init__(
+        self,
+        model_name="DAMO-NLP-SG/VideoLLaMA2.1-7B-16F",
+        video_dir="experiments/data/videos/sample_video.mp4",
+        segment_time=10,
+    ):
+        """
+        Initialize the inference model for video processing.
+        Parameters:
+            model_name (str): The name of the model to be used for inference. Default is "DAMO-NLP-SG/VideoLLaMA2.1-7B-16F".
+            video_dir (str): The directory path to the video file. Default is "experiments/data/videos/sample_video.mp4".
+            segment_time (int): The time in seconds for each video segment to be processed. Default is 10.
+        Attributes:
+            model: The initialized model for video inference.
+            processor: The processor associated with the model.
+            tokenizer: The tokenizer associated with the model.
+            video (str): The directory path to the video file.
+            segment_time (int): The time in seconds for each video segment to be processed.
+            modal (str): The type of data being processed, set to "video".
+            prompt (str): The prompt used for video description.
+        """
 
-    metadata_path = "experiments/data/metadata/video.json"
-    model_path = "DAMO-NLP-SG/VideoLLaMA2.1-7B-16F"
+        self.model, self.processor, self.tokenizer = model_init(model_name)
+        self.video = video_dir
+        self.segment_time = segment_time
+        self.modal = "video"
+        self.prompt = "Can you describe the video in detail?"
+        disable_torch_init()
 
-    model, processor, tokenizer = model_init(model_path)
-    for file in os.listdir(video_dir):
-        modal_path = video_dir + file
-        filename = os.path.splitext(file)[0]
-        description = mm_infer(
-            processor[modal](modal_path),
-            instruct,
-            model=model,
-            tokenizer=tokenizer,
-            do_sample=True,
-            modal=modal,
-        )
+    def sanitize_response(self, text):
+        # TODO : update with experiments
+        # detect "In the video, ..."
+        pattern = r"(?i)\b(in the video,?\b.*?[\.;])\s?"
+        cleaned_text = re.sub(pattern, "", text).strip()
 
-        print(description)
+        return cleaned_text
 
-        with open(metadata_path, "r") as file:
-            json_data = json.load(file)
+    def forward(self):
+        description_list = []
+        for segment in segment_video_generator(
+            self.video, segment_time=self.segment_time
+        ):
+            processed_segment = self.processor[self.modal](segment)
+            segment_description = mm_infer(
+                processed_segment,
+                self.prompt,
+                model=self.model,
+                tokenizer=self.tokenizer,
+                do_sample=True,
+                modal=self.modal,
+            )
 
-            for json_object in json_data:
-                if json_object.get("title") == filename:
-                    title = json_object.get("original_title")
-                    url = json_object.get("url")
-
-        content = f"Video Title : {title}\n Description of the video : {description}\n Link :{url}"
-
-        post(content=content, user="johndoe")
+            description_list.append(self.sanitize_response(segment_description))
+        return " ".join(description for description in description_list)
 
 
 if __name__ == "__main__":
-    inference()
+    instance = CustomVideoLLaMA2()
+    print(instance.forward())

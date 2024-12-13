@@ -1,25 +1,32 @@
 from faster_whisper import WhisperModel
 
 
-def inference():
+class CustomWhisper:
 
-    model_size = "large-v2"
+    def __init__(
+        self,
+        model_name="large-v2",
+        video_dir="experiments/data/videos/sample_video.mp4",
+    ):
+        """
+        Initialize the CustomWhisper model.
 
-    model = WhisperModel(model_size, device="cuda", compute_type="float16")
+        Parameters:
+        model_name (str): The name/size of the Whisper model to use.
+        video_dir (str): Path to the video.
+        """
+        self.model = WhisperModel(model_name, device="cuda", compute_type="float16")
+        self.video = video_dir
 
-    segments, info = model.transcribe(
-        "./data/audios/sample_audio.mp3",
-        beam_size=5,
-    )
-
-    print(
-        "Detected language '%s' with probability %f"
-        % (info.language, info.language_probability)
-    )
-
-    for segment in segments:
-        print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+    def forward(self):
+        segments, _ = self.model.transcribe(
+            self.video,
+            beam_size=5,
+            chunk_length=30,
+        )
+        return "".join([segment.text for segment in segments])
 
 
 if __name__ == "__main__":
-    inference()
+    instance = CustomWhisper()
+    print(instance.forward())
