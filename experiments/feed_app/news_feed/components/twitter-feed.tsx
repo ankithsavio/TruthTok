@@ -9,6 +9,7 @@ import { Heart, MessageCircle, Repeat2 } from 'lucide-react'
 import YouTubeEmbed from './youtube-embed'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from 'lucide-react'
+import { Chatbot } from './chatbot'
 
 interface Tweet {
   id: number
@@ -94,6 +95,14 @@ export default function TwitterFeed() {
       )}
       <Card className="mb-4">
         <CardHeader>
+          <h2 className="text-2xl font-bold">Chatbot</h2>
+        </CardHeader>
+        <CardContent className="p-4">
+          <Chatbot />
+        </CardContent>
+      </Card>
+      <Card className="mb-4">
+        <CardHeader>
           <h2 className="text-2xl font-bold">Post a Tweet</h2>
         </CardHeader>
         <CardContent>
@@ -127,7 +136,7 @@ export default function TwitterFeed() {
               </div>
             </CardHeader>
             <CardContent>
-              <p>{tweet.content}</p>
+              <p className="whitespace-pre-wrap">{tweet.content}</p>
               <YouTubeEmbed content={tweet.content} />
             </CardContent>
             <CardFooter>
