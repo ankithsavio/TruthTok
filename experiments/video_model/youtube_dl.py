@@ -21,6 +21,104 @@ def sanitize_filename(filename):
     return filename
 
 
+def download_video_by_url(video_url, output_dir="./data"):
+    """
+    Download a YouTube video by its URL.
+
+    Args:
+        video_url (str): URL of the YouTube video to download.
+        output_dir (str): Directory to save the downloaded video and audio.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir + "/videos", exist_ok=True)
+    os.makedirs(output_dir + "/audios", exist_ok=True)
+
+    ydl_opts = {
+        "format": "bestvideo[height<=720][vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]",  # Limit quality to 720p and format to mp4
+        "outtmpl": os.path.join(
+            output_dir + "/videos", "%(title)s.%(ext)s"
+        ),  # Output filename template for video
+        "noplaylist": True,  # Only individual videos
+        "quiet": True,
+        "postprocessors": [
+            {
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mp4",
+            }
+        ],
+        "postprocessor_args": {
+            "FFmpegVideoConvertor": [
+                "-c:v",
+                "libx264",  # Use H.264 codec
+                "-preset",
+                "veryfast",  # Encoding preset
+            ]
+        },
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+
+        video_title = sanitize_filename(info.get("title"))
+        video_duration = info.get("duration")
+        video_uploader = info.get("uploader")
+        video_upload_date = info.get("upload_date")
+        video_description = info.get("description")
+        video_id = info.get("id")
+
+        video_output_path = os.path.join(output_dir + "/videos", f"{video_title}.mp4")
+        audio_output_path = os.path.join(output_dir + "/audios", f"{video_title}.mp3")
+
+        # Extract audio
+        audio_ydl_opts = {
+            "format": "bestaudio[ext=m4a]/best[height<=720][ext=mp4]",
+            "noplaylist": True,
+            "quiet": True,
+            "outtmpl": audio_output_path,
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "128",
+                }
+            ],
+        }
+
+        with yt_dlp.YoutubeDL(audio_ydl_opts) as audio_ydl:
+            audio_ydl.download([video_url])
+
+        video_metadata = {
+            "id": video_id,
+            "title": video_title,
+            "duration": video_duration,
+            "url": video_url,
+            "uploader": video_uploader,
+            "upload_date": video_upload_date,
+            "description": video_description,
+            "file_path": video_output_path,
+            "audio_path": audio_output_path,
+        }
+
+        os.makedirs(output_dir + "/metadata", exist_ok=True)
+        metadata_path = os.path.join(output_dir + "/metadata", "video.json")
+
+        if os.path.exists(metadata_path):
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                existing_metadata = json.load(f)
+        else:
+            existing_metadata = []
+
+        existing_metadata.append(video_metadata)
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            json.dump(existing_metadata, f, indent=4, ensure_ascii=False)
+
+        print(f"Downloaded video: {video_title}")
+
+    except Exception as e:
+        print(f"Failed to download video: {e}")
+
+
 def download_videos_from_search(
     search_query,
     max_duration=300,
@@ -28,7 +126,7 @@ def download_videos_from_search(
     output_dir="./data",
 ):
     """
-    Download YouTube videos related to natural phenomena, filtering by duration.
+    Download YouTube videos based on a search query, filtering by duration.
 
     Args:
         search_query (str): The search query for the videos.
@@ -156,24 +254,42 @@ def download_videos_from_search(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Download YouTube videos based on a search query."
+        description="Download YouTube videos by search query or URL."
     )
-    parser.add_argument(
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Subparser for search query
+    search_parser = subparsers.add_parser(
+        "search", help="Download videos by search query."
+    )
+    search_parser.add_argument(
         "search_query", type=str, help="The search query for the videos."
     )
-    parser.add_argument(
+    search_parser.add_argument(
         "--max_duration",
         type=int,
         default=300,
         help="Maximum video duration in seconds (default: 300).",
     )
-    parser.add_argument(
+    search_parser.add_argument(
         "--max_videos",
         type=int,
         default=10,
         help="Maximum number of videos to download (default: 10).",
     )
-    parser.add_argument(
+    search_parser.add_argument(
+        "--output_dir",
+        type=str,
+        default="experiments/data",
+        help="Directory to save videos and metadata (default: ./data).",
+    )
+
+    # Subparser for URL
+    url_parser = subparsers.add_parser("url", help="Download a video by URL.")
+    url_parser.add_argument(
+        "video_url", type=str, help="The URL of the YouTube video to download."
+    )
+    url_parser.add_argument(
         "--output_dir",
         type=str,
         default="experiments/data",
@@ -182,6 +298,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    download_videos_from_search(
-        args.search_query, args.max_duration, args.max_videos, args.output_dir
-    )
+    if args.command == "search":
+        download_videos_from_search(
+            args.search_query, args.max_duration, args.max_videos, args.output_dir
+        )
+    elif args.command == "url":
+        download_video_by_url(args.video_url, args.output_dir)
