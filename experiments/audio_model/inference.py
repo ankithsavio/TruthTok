@@ -6,21 +6,18 @@ class CustomWhisper:
     def __init__(
         self,
         model_name="large-v2",
-        video_dir="experiments/data/videos/sample_video.mp4",
     ):
         """
         Initialize the CustomWhisper model.
 
         Parameters:
         model_name (str): The name/size of the Whisper model to use.
-        video_dir (str): Path to the video.
         """
         self.model = WhisperModel(model_name, device="cuda", compute_type="float16")
-        self.video = video_dir
 
-    def forward(self):
+    def forward(self, video):
         segments, _ = self.model.transcribe(
-            self.video,
+            video,
             beam_size=5,
             chunk_length=30,
         )

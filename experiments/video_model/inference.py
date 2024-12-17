@@ -9,27 +9,23 @@ class CustomVideoLLaMA2:
     def __init__(
         self,
         model_name="DAMO-NLP-SG/VideoLLaMA2.1-7B-16F",
-        video_dir="experiments/data/videos/sample_video.mp4",
         segment_time=10,
     ):
         """
         Initialize the inference model for video processing.
         Parameters:
             model_name (str): The name of the model to be used for inference. Default is "DAMO-NLP-SG/VideoLLaMA2.1-7B-16F".
-            video_dir (str): The directory path to the video file. Default is "experiments/data/videos/sample_video.mp4".
             segment_time (int): The time in seconds for each video segment to be processed. Default is 10.
         Attributes:
             model: The initialized model for video inference.
             processor: The processor associated with the model.
             tokenizer: The tokenizer associated with the model.
-            video (str): The directory path to the video file.
             segment_time (int): The time in seconds for each video segment to be processed.
             modal (str): The type of data being processed, set to "video".
             prompt (str): The prompt used for video description.
         """
 
         self.model, self.processor, self.tokenizer = model_init(model_name)
-        self.video = video_dir
         self.segment_time = segment_time
         self.modal = "video"
         self.prompt = "Can you describe the video in detail?"
@@ -43,11 +39,9 @@ class CustomVideoLLaMA2:
 
         return cleaned_text
 
-    def forward(self):
+    def forward(self, video):
         description_list = []
-        for segment in segment_video_generator(
-            self.video, segment_time=self.segment_time
-        ):
+        for segment in segment_video_generator(video, segment_time=self.segment_time):
             processed_segment = self.processor[self.modal](segment)
             segment_description = mm_infer(
                 processed_segment,
