@@ -4,10 +4,10 @@
 
 # TruthTok Platform 📱
 
-[![GitHub license](https://img.shields.io/github/license/your-username/truthtok-platform)](https://github.com/your-username/truthtok-platform/blob/main/LICENSE)
-[![Telegram](https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg?logo=telegram)](https://t.me/truthtokplatform)
-[![Contributors](https://img.shields.io/github/contributors/your-username/truthtok-platform)](https://github.com/your-username/truthtok-platform/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/your-username/truthtok-platform)](https://github.com/your-username/truthtok-platform/commits/main)
+[![GitHub license](https://img.shields.io/github/license/NethermindEth/TruthTok)](https://github.com/NethermindEth/TruthTok/blob/main/LICENSE)
+[![Telegram](https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg?logo=telegram)](https://t.me/truth_tok)
+[![Contributors](https://img.shields.io/github/contributors/NethermindEth/TruthTok)](https://github.com/NethermindEth/TruthTok/graphs/contributors)
+[![Last Commit](https://img.shields.io/github/last-commit/NethermindEth/TruthTok)](https://github.com/NethermindEth/TruthTok/commits/main)
 
 > Bringing truth back to news through verified, real-world video content.
 
