@@ -1,12 +1,11 @@
 import { CronJob } from 'cron'
-import { StorageService } from '../services/storage'
+import { storageService } from '../services/storage'
 import { DatabaseService } from '../services/db'
 
 export class CleanupService {
   private jobs: CronJob[] = []
   
   constructor(
-    private readonly storage: StorageService,
     private readonly db: DatabaseService
   ) {}
 
@@ -22,9 +21,20 @@ export class CleanupService {
   }
 
   private async archiveOldVideos() {
-    const oldVideos = await this.db.findOldVideos(30)
-    for (const video of oldVideos) {
-      await this.storage.moveToArchive(video.id, 30)
+    const db = new DatabaseService()
+    const OLD_VIDEO_DAYS = 30
+
+    try {
+      const oldVideos = await db.findOldVideos(OLD_VIDEO_DAYS)
+      
+      for (const video of oldVideos) {
+        await storageService.deleteVideo(video.id)
+        await db.updateVideoStatus(video.id, 'ARCHIVED' as any)
+      }
+
+      console.log(`Cleaned up ${oldVideos.length} old videos`)
+    } catch (error) {
+      console.error('Error during video cleanup:', error)
     }
   }
 
