@@ -23,7 +23,7 @@ def sanitize_filename(filename):
 
 def download_video_by_url(video_url, output_dir="./data"):
     """
-    Download a YouTube video by its URL.
+    Download a YouTube video by its URL, sanitize the filename, and update metadata.
 
     Args:
         video_url (str): URL of the YouTube video to download.
@@ -31,14 +31,12 @@ def download_video_by_url(video_url, output_dir="./data"):
     """
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(output_dir + "/videos", exist_ok=True)
-    os.makedirs(output_dir + "/audios", exist_ok=True)
+    os.makedirs(output_dir + "/metadata", exist_ok=True)
 
     ydl_opts = {
-        "format": "bestvideo[height<=720][vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]",  # Limit quality to 720p and format to mp4
-        "outtmpl": os.path.join(
-            output_dir + "/videos", "%(title)s.%(ext)s"
-        ),  # Output filename template for video
-        "noplaylist": True,  # Only individual videos
+        "format": "bestvideo[height<=720][vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]",
+        "outtmpl": os.path.join(output_dir + "/videos", "%(title)s.%(ext)s"),
+        "noplaylist": True,
         "quiet": True,
         "postprocessors": [
             {
@@ -49,74 +47,65 @@ def download_video_by_url(video_url, output_dir="./data"):
         "postprocessor_args": {
             "FFmpegVideoConvertor": [
                 "-c:v",
-                "libx264",  # Use H.264 codec
+                "libx264",
                 "-preset",
-                "veryfast",  # Encoding preset
+                "veryfast",
             ]
         },
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
+            # info = ydl.download([video_url])
+            # exit()
+            info = ydl.extract_info(video_url, download=False)
 
-        video_title = sanitize_filename(info.get("title"))
-        video_duration = info.get("duration")
-        video_uploader = info.get("uploader")
-        video_upload_date = info.get("upload_date")
-        video_description = info.get("description")
-        video_id = info.get("id")
+            video_title = sanitize_filename(info.get("title"))
+            video_ext = info.get("ext", "mp4")
+            video_duration = info.get("duration")
+            video_uploader = info.get("uploader")
+            video_upload_date = info.get("upload_date")
+            video_description = info.get("description")
+            video_id = info.get("id")
 
-        video_output_path = os.path.join(output_dir + "/videos", f"{video_title}.mp4")
-        audio_output_path = os.path.join(output_dir + "/audios", f"{video_title}.mp3")
+            video_output_path = os.path.join(
+                output_dir + "/videos", f"{video_title}.{video_ext}"
+            )
 
-        # Extract audio
-        audio_ydl_opts = {
-            "format": "bestaudio[ext=m4a]/best[height<=720][ext=mp4]",
-            "noplaylist": True,
-            "quiet": True,
-            "outtmpl": audio_output_path,
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "128",
-                }
-            ],
-        }
+            ydl_opts["outtmpl"] = video_output_path
 
-        with yt_dlp.YoutubeDL(audio_ydl_opts) as audio_ydl:
-            audio_ydl.download([video_url])
+            with yt_dlp.YoutubeDL(ydl_opts) as single_ydl:
+                single_ydl.download([video_url])
 
-        video_metadata = {
-            "id": video_id,
-            "title": video_title,
-            "duration": video_duration,
-            "url": video_url,
-            "uploader": video_uploader,
-            "upload_date": video_upload_date,
-            "description": video_description,
-            "file_path": video_output_path,
-            "audio_path": audio_output_path,
-        }
+            video_metadata = {
+                "id": video_id,
+                "title": video_title,
+                "duration": video_duration,
+                "url": video_url,
+                "uploader": video_uploader,
+                "upload_date": video_upload_date,
+                "description": video_description,
+                "file_path": video_output_path,
+            }
 
-        os.makedirs(output_dir + "/metadata", exist_ok=True)
-        metadata_path = os.path.join(output_dir + "/metadata", "video.json")
+            metadata_path = os.path.join(output_dir + "/metadata", "video.json")
 
-        if os.path.exists(metadata_path):
-            with open(metadata_path, "r", encoding="utf-8") as f:
-                existing_metadata = json.load(f)
-        else:
-            existing_metadata = []
+            if os.path.exists(metadata_path):
+                with open(metadata_path, "r", encoding="utf-8") as f:
+                    existing_metadata = json.load(f)
+            else:
+                existing_metadata = []
 
-        existing_metadata.append(video_metadata)
-        with open(metadata_path, "w", encoding="utf-8") as f:
-            json.dump(existing_metadata, f, indent=4, ensure_ascii=False)
+            existing_metadata.append(video_metadata)
+            with open(metadata_path, "w", encoding="utf-8") as f:
+                json.dump(existing_metadata, f, indent=4, ensure_ascii=False)
 
-        print(f"Downloaded video: {video_title}")
+            print(f"Downloaded video: {video_title}")
 
     except Exception as e:
         print(f"Failed to download video: {e}")
+
+    return video_output_path
 
 
 def download_videos_from_search(
@@ -136,7 +125,6 @@ def download_videos_from_search(
     """
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(output_dir + "/videos", exist_ok=True)
-    os.makedirs(output_dir + "/audios", exist_ok=True)
 
     ydl_opts = {
         "format": "bestvideo[height<=720][vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]",  # Limit quality to 720p and format to mp4
@@ -186,9 +174,6 @@ def download_videos_from_search(
                 video_output_path = os.path.join(
                     output_dir + "/videos", f"{sanitized_title}.mp4"
                 )
-                audio_output_path = os.path.join(
-                    output_dir + "/audios", f"{sanitized_title}.mp3"
-                )
 
                 ydl_opts["outtmpl"] = (
                     video_output_path  # Update output path for the sanitized filename
@@ -200,23 +185,6 @@ def download_videos_from_search(
                     with yt_dlp.YoutubeDL(ydl_opts) as single_ydl:
                         single_ydl.download([video_url])
 
-                    audio_ydl_opts = {
-                        "format": "bestaudio[ext=m4a]/best[height<=720][ext=mp4]",
-                        "noplaylist": True,
-                        "quiet": True,
-                        "outtmpl": audio_output_path,
-                        "postprocessors": [
-                            {
-                                "key": "FFmpegExtractAudio",
-                                "preferredcodec": "mp3",
-                                "preferredquality": "128",
-                            }
-                        ],
-                    }
-
-                    with yt_dlp.YoutubeDL(audio_ydl_opts) as audio_ydl:
-                        audio_ydl.download([video_url])
-
                     video_metadata = {
                         "id": video_id,
                         "title": sanitized_title,
@@ -227,7 +195,6 @@ def download_videos_from_search(
                         "upload_date": video_upload_date,
                         "description": video_description,
                         "file_path": video_output_path,
-                        "audio_path": audio_output_path,
                     }
 
                     metadata.append(video_metadata)
@@ -250,6 +217,8 @@ def download_videos_from_search(
     with open(metadata_path, "w", encoding="utf-8") as f:
         json.dump(existing_metadata, f, indent=4, ensure_ascii=False)
         print(f"Metadata appended to {metadata_path}")
+
+    return video_output_path
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 from videollama2 import model_init, mm_infer
 from videollama2.utils import disable_torch_init
-from .segment_generator import segment_video_generator
+from experiments.video_model.segment_generator import segment_video_generator
 import re
+import asyncio
+from functools import partial
 
 
 class CustomVideoLLaMA2:
@@ -30,6 +32,7 @@ class CustomVideoLLaMA2:
         self.modal = "video"
         self.prompt = "Can you describe the video in detail?"
         disable_torch_init()
+        self.init_chat = False
 
     def sanitize_response(self, text):
         # TODO : update with experiments
@@ -54,6 +57,28 @@ class CustomVideoLLaMA2:
 
             description_list.append(self.sanitize_response(segment_description))
         return " ".join(description for description in description_list)
+
+    def _init_chat_forward(self, video_dir):
+        self.init_chat = True
+        self.processed_video = self.processor["video"](video_dir)
+        self.partial_infer = partial(
+            mm_infer,
+            self.processed_video,
+            model=self.model,
+            tokenizer=self.tokenizer,
+            modal="video",
+            do_sample=True,
+        )
+
+    async def chat_forward(self, instruct, video_dir):
+        if not self.init_chat:
+            self._init_chat_forward(video_dir)
+
+        # Use the current event loop directly
+        output = await asyncio.get_event_loop().run_in_executor(
+            None, self.partial_infer, instruct
+        )
+        return output
 
 
 if __name__ == "__main__":
