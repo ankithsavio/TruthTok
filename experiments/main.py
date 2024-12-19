@@ -32,7 +32,7 @@ def main():
                 title = metadata["original_title"]
                 link = metadata["url"]
 
-                video_content = video_model.forward(video_file)
+                video_content = video_model.batch_forward(video_file)
                 audio_content = audio_model.forward(video_file)
 
                 summary = language_model.summarize_video(video_content, audio_content)
