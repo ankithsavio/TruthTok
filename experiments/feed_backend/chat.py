@@ -2,6 +2,7 @@ import re
 import os
 from experiments.video_model.youtube_dl import download_video_by_url
 from experiments.video_model.inference import CustomVideoLLaMA2
+import shutil
 
 
 class ChatApplication:
@@ -23,6 +24,8 @@ class ChatApplication:
 
         # Detect YouTube links and process video
         if link := self.detect_youtube_links(message):
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
             self.video_chat = True
             os.makedirs(self.temp_dir, exist_ok=True)
 
@@ -46,4 +49,5 @@ class ChatApplication:
             )
 
     def shutdown(self):
-        os.rmdir(self.temp_dir)
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)

@@ -8,7 +8,11 @@ from datetime import datetime
 from typing import List
 from uuid import uuid4
 from chat import ChatApplication
+from preprocess_tweet import preprocess_tweet
 import os
+from experiments.language_model.inference import LlamaModel
+from experiments.video_model.inference import CustomVideoLLaMA2
+from experiments.audio_model.inference import CustomWhisper
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'tweets.db')}"
@@ -20,6 +24,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 # loads model into the GPU
 chatbot = ChatApplication()
+
+language_model = LlamaModel()
+video_model = CustomVideoLLaMA2(segment_time=10)
+audio_model = CustomWhisper()
 
 
 # Tweet model
@@ -77,7 +85,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Add your frontend URL
+    allow_origins=["*"],  # Add your frontend URL # http://localhost:3000
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -85,9 +93,13 @@ app.add_middleware(
 
 
 @app.post("/tweets/", response_model=TweetResponse)
-def create_tweet(tweet: TweetCreate, db: Session = Depends(get_db)):
+async def create_tweet(tweet: TweetCreate, db: Session = Depends(get_db)):
+    print(f"Received in backend{tweet}")
+    processed_tweet = await preprocess_tweet(
+        tweet, language_model, video_model, audio_model
+    )
     try:
-        db_tweet = Tweet(**tweet.dict())
+        db_tweet = Tweet(**processed_tweet.dict())
         db.add(db_tweet)
         db.commit()
         db.refresh(db_tweet)
