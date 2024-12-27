@@ -80,6 +80,7 @@ def download_video_by_url(video_url, output_dir="./data"):
             video_metadata = {
                 "id": video_id,
                 "title": video_title,
+                "original_title": info.get("title"),
                 "duration": video_duration,
                 "url": video_url,
                 "uploader": video_uploader,
