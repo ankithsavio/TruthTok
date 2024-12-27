@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -14,6 +14,7 @@ import { Chatbot } from './chatbot'
 interface Tweet {
   id: number
   content: string
+  processed_content: string
   user_name: string
   user_username: string
   user_avatar: string
@@ -28,20 +29,20 @@ export default function TwitterFeed() {
   const [newTweet, setNewTweet] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    fetchTweets()
-  }, [])
-
-  const fetchTweets = async () => {
+  const fetchTweets = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
+      console.log('Fetching tweets...')
       const response = await fetch('http://localhost:8000/tweets/')
+      console.log('Response status:', response.status)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const data = await response.json()
+      console.log('Fetched tweets:', data)
       setTweets(data)
     } catch (error) {
       console.error('Error fetching tweets:', error)
@@ -49,40 +50,49 @@ export default function TwitterFeed() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const handleNewTweet = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newTweet.trim()) {
-      setError(null)
-      const tweet = {
-        content: newTweet,
-        user_name: "Current User",
-        user_username: "currentuser",
-        user_avatar: "/placeholder.svg?height=40&width=40"
+  useEffect(() => {
+    fetchTweets()
+  }, [fetchTweets])
+
+  const handleNewTweet = async (content: string) => {
+    setError(null);
+    setIsProcessing(true);
+    try {
+      const response = await fetch('http://localhost:8000/tweets/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          user_name: "Current User",
+          user_username: "currentuser",
+          user_avatar: "/placeholder.svg?height=40&width=40"
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      try {
-        const response = await fetch('http://localhost:8000/tweets/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(tweet),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        setNewTweet("")
-        fetchTweets()
-      } catch (error) {
-        console.error('Error posting tweet:', error)
-        setError('Failed to post tweet. Please try again.')
-      }
+      await fetchTweets();
+      setNewTweet("");
+    } catch (error) {
+      console.error('Error posting tweet:', error);
+      setError('Failed to post tweet. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-  }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newTweet.trim() && !isProcessing) {
+      handleNewTweet(newTweet);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -106,14 +116,17 @@ export default function TwitterFeed() {
           <h2 className="text-2xl font-bold">Post a Tweet</h2>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleNewTweet}>
+          <form onSubmit={handleSubmit}>
             <Input
-              placeholder="What's happening? (You can include YouTube links!)"
+              placeholder="Insert Youtube Link to get News Feed - Estimated Time: 1-2 minutes"
               value={newTweet}
               onChange={(e) => setNewTweet(e.target.value)}
               className="mb-2"
+              disabled={isProcessing}
             />
-            <Button type="submit">Tweet</Button>
+            <Button type="submit" disabled={isProcessing}>
+              {isProcessing ? "Processing..." : "Tweet"}
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -136,7 +149,10 @@ export default function TwitterFeed() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap">{tweet.content}</p>
+              {/* <p className="font-semibold mb-2">Original:</p> */}
+              <p className="whitespace-pre-wrap mb-4">{tweet.content}</p>
+              {/* <p className="font-semibold mb-2">Processed:</p> */}
+              {/* <p className="whitespace-pre-wrap mb-4">{tweet.processed_content}</p> */}
               <YouTubeEmbed content={tweet.content} />
             </CardContent>
             <CardFooter>
