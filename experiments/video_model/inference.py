@@ -3,8 +3,12 @@ from videollama2.utils import disable_torch_init
 from videollama2.mm_utils import tokenizer_multimodal_token, KeywordsStoppingCriteria
 from videollama2.constants import DEFAULT_VIDEO_TOKEN
 
-# from experiments.video_model.segment_generator import segment_video_generator, batch_segment_video_generator
-from segment_generator import segment_video_generator, batch_segment_video_generator
+from experiments.video_model.segment_generator import (
+    segment_video_generator,
+    batch_segment_video_generator,
+)
+
+# from segment_generator import segment_video_generator, batch_segment_video_generator
 import re
 import asyncio
 from functools import partial
