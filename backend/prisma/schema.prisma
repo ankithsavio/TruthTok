@@ -16,19 +16,70 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+enum VideoStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  COMPLETED
+  ERROR
+  FAILED
+}
+
 model Video {
-  id          String    @id @default(uuid())
-  url         String
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  location    Json      // { lat: number, lng: number }
-  timestamp   DateTime
-  status      String
-  description String?
-  clusterId   String?
-  cluster     Cluster?  @relation(fields: [clusterId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String           @id @default(uuid())
+  url             String
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  location        Json?           // { lat: number, lng: number }
+  timestamp       DateTime
+  status          VideoStatus     @default(PENDING)
+  description     String?
+  aiDescription   String?         // Add aiDescription field
+  captions       Caption[]
+  tags           Tag[]
+  metadata       VideoMetadata?
+  clusterId       String?
+  cluster         Cluster?        @relation(fields: [clusterId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model VideoMetadata {
+  id        String   @id @default(uuid())
+  videoId   String   @unique
+  video     Video    @relation(fields: [videoId], references: [id])
+  duration  Float?
+  format    String?
+  size      Int?
+  width     Int?
+  height    Int?
+  fps       Float?
+  codec     String?
+  bitrate   Int?
+  fileSize        Int
+  processingLogs  Json[]    // Array of processing steps and their status
+  resolution      Json      // { width: number, height: number }
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Caption {
+  id        String   @id @default(uuid())
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id])
+  text      String
+  startTime Float
+  endTime   Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  videos    Video[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Cluster {
@@ -41,4 +92,4 @@ model Cluster {
   videos        Video[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-} 
+}

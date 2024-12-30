@@ -17,6 +17,7 @@ const envSchema = z.object({
   MINIO_ENDPOINT: z.string(),
   MINIO_PORT: z.string().default('9000'),
   MINIO_USE_SSL: z.string().default('false'),
+  MINIO_REGION: z.string().default('us-east-1'),
 
   // Redis
   REDIS_URL: z.string(),

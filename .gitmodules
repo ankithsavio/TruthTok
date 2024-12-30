@@ -1,0 +1,3 @@
+[submodule "experiments/VideoLLaMA2"]
+	path = experiments/VideoLLaMA2
+	url = https://github.com/DAMO-NLP-SG/VideoLLaMA2.git

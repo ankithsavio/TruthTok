@@ -44,3 +44,15 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+
+
+# Avoid committing to submodule videollama2
+VideoLLaMA2/
+
+# Avoid video/audio files other than samples
+videos/
+audios/
+metadata/
+*.ipynb
+**/**__pycache__

@@ -9,8 +9,8 @@ RUN apk add --no-cache curl
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm install
+# Install dependencies including devDependencies
+RUN npm install --include=dev
 
 # Copy source code
 COPY . .
@@ -20,7 +20,11 @@ RUN npx prisma generate
 
 # Create test script directly in the container
 RUN echo '#!/bin/sh' > /app/run-tests.sh && \
+    echo 'echo "Waiting for services to be ready..."' >> /app/run-tests.sh && \
+    echo 'sleep 10' >> /app/run-tests.sh && \
+    echo 'echo "Running database migrations..."' >> /app/run-tests.sh && \
     echo 'npx prisma migrate deploy' >> /app/run-tests.sh && \
+    echo 'echo "Running tests..."' >> /app/run-tests.sh && \
     echo 'npm run test' >> /app/run-tests.sh && \
     chmod +x /app/run-tests.sh
 
