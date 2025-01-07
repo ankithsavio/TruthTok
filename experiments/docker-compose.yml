@@ -1,0 +1,59 @@
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: /ephemeral/huggingface/models
+        target: /app/huggingface/models
+    environment:
+      HF_HOME: /app/huggingface/models
+      HF_HUB_CACHE: /app/huggingface/models/hub
+      OLLAMA_HOST: http://ollama-llama3.3:11434
+      TRANSFORMERS_VERBOSITY: "error"
+    depends_on:
+      - ollama-llama3.3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: ["python", "-m", "experiments.feed_backend.webapp"]
+  ollama-llama3.3:
+    image: ollama/ollama:latest
+    volumes:
+      - type: bind
+        source: /ephemeral/ollama/models
+        target: /app/ollama/models
+    environment:
+      OLLAMA_MODELS: /app/ollama/models
+      OLLAMA_HOST: 0.0.0.0
+    ports:
+      - "11000:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  ngrok:
+    image: ngrok/ngrok:latest
+    environment:
+      NGROK_AUTHTOKEN: $NGROK_AUTHTOKEN
+      NGROK_URL: $NGROK_URL
+    command: http --url=$NGROK_URL backend:8000
+    ports:
+      - "4040:4040" 
+    depends_on:
+      - backend
+      - ollama-llama3.3
+
+
+
+
