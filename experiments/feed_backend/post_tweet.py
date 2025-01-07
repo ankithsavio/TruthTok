@@ -1,14 +1,15 @@
 import requests
 
+
 def post(content: str, user: str):
 
-    url = "http://localhost:8000/tweets/"
+    url = "https://egret-hopeful-roughy.ngrok-free.app/tweets/"
 
     data = {
-    "content": content,
-    "user_name": user,
-    "user_username": user,
-    "user_avatar": ""
+        "content": content,
+        "user_name": user,
+        "user_username": user,
+        "user_avatar": "",
     }
 
     response = requests.post(url, json=data)
@@ -18,6 +19,3 @@ def post(content: str, user: str):
         print(response.json())
     else:
         print("Failed to post tweet")
-
-
-

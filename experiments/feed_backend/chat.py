@@ -1,7 +1,7 @@
 import re
 import os
-from experiments.video_model.youtube_dl import download_video_by_url
-from experiments.video_model.inference import CustomVideoLLaMA2
+from ..video_model.youtube_dl import download_video_by_url
+from ..video_model.inference import CustomVideoLLaMA2
 import shutil
 
 

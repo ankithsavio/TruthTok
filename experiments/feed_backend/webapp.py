@@ -7,12 +7,22 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List
 from uuid import uuid4
-from chat import ChatApplication
-from preprocess_tweet import preprocess_tweet
+from .chat import ChatApplication
+from .preprocess_tweet import preprocess_tweet
 import os
-from experiments.language_model.inference import LlamaModel
-from experiments.video_model.inference import CustomVideoLLaMA2
-from experiments.audio_model.inference import CustomWhisper
+from ..language_model.inference import LlamaModel
+from ..video_model.inference import CustomVideoLLaMA2
+from ..audio_model.inference import CustomWhisper
+import logging
+import time
+
+logging.basicConfig(
+    level=logging.INFO, 
+    format="%(asctime)s - %(levelname)s - %(message)s",  
+    datefmt="%Y-%m-%d %H:%M:%S" 
+)
+
+logging.info("Backend Init")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'tweets.db')}"
