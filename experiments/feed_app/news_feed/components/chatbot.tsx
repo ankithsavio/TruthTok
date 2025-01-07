@@ -34,7 +34,7 @@ export function Chatbot() {
     setInput(''); // Clear the input field
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch('https://egret-hopeful-roughy.ngrok-free.app/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

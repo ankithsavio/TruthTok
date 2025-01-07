@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-let tweets = [
+const tweets = [
   {
     id: 1,
     user: {

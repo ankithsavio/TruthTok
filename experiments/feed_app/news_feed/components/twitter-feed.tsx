@@ -36,8 +36,11 @@ export default function TwitterFeed() {
     setError(null)
     try {
       console.log('Fetching tweets...')
-      const response = await fetch('http://localhost:8000/tweets/')
-      console.log('Response status:', response.status)
+      const response = await fetch('https://egret-hopeful-roughy.ngrok-free.app/tweets/', {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }});
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -45,8 +48,8 @@ export default function TwitterFeed() {
       console.log('Fetched tweets:', data)
       setTweets(data)
     } catch (error) {
-      console.error('Error fetching tweets:', error)
-      setError('Failed to fetch tweets. Please ensure the server is running and try again.')
+      console.error('Error fetching tweets:', error);
+      setError('Failed to fetch tweets. Please ensure the server is running and try again.');
     } finally {
       setIsLoading(false)
     }
@@ -60,7 +63,7 @@ export default function TwitterFeed() {
     setError(null);
     setIsProcessing(true);
     try {
-      const response = await fetch('http://localhost:8000/tweets/', {
+      const response = await fetch('https://egret-hopeful-roughy.ngrok-free.app/tweets/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

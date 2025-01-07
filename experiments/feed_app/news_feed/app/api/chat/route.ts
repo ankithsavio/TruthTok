@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   
   try {
-    const response = await fetch('http://localhost:8000/api/chat', {
+    const response = await fetch('https://egret-hopeful-roughy.ngrok-free.app/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
